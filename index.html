@@ -4,176 +4,123 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>그레이트 킹덤 연습</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/galmuri.css">
 <style>
 :root{
-  --night:#12172b;      /* 밤하늘 */
-  --rampart:#1d2441;    /* 성벽 패널 */
-  --rampart-2:#262f55;
-  --stone:#8b8fa6;      /* 돌 테두리 */
-  --stone-d:#4a4f68;
-  --meadow-a:#5f8f4b;   /* 들판 칸 */
-  --meadow-b:#6b9c55;
-  --lapis:#2f6bff;      /* 파랑 왕국 */
-  --lapis-l:#7fa6ff;
-  --ember:#ff7a1a;      /* 주황 왕국 */
-  --ember-l:#ffb070;
-  --gold:#f5c451;
-  --fog:#e9e7f2;
-  --fog-dim:#a4a6bf;
-  --danger:#ff3b4e;
-  --display:"Black Han Sans","IBM Plex Sans KR",sans-serif;
-  --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --night:#17142b;--night-2:#231e40;--ink:#0d0b18;
+  --panel:#2b2550;--panel-hi:#3b3470;
+  --stone:#7d7f99;--stone-hi:#a9abc4;--stone-lo:#4b4d66;
+  --blue:#3b6fe0;--blue-hi:#7aa2ff;--blue-lo:#1d3b8f;
+  --orange:#f07a22;--orange-hi:#ffb066;--orange-lo:#9a4210;
+  --gold:#ffd23f;--paper:#f3ecd6;--dim:#a99fcf;--red:#ff3e4d;
+  --px:"Galmuri11","Galmuri9",monospace;
 }
 *{box-sizing:border-box}
-html{background:var(--night)}
-body{margin:0;min-height:100vh;color:var(--fog);font-family:var(--body);line-height:1.6;
-  background:
-    radial-gradient(1200px 500px at 50% -10%, #2a3570 0%, transparent 60%),
-    radial-gradient(2px 2px at 12% 18%, #fff8 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 78% 9%, #fff7 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 33% 6%, #fff6 50%, transparent 51%),
-    radial-gradient(2px 2px at 91% 27%, #fff5 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 58% 14%, #fff6 50%, transparent 51%),
-    var(--night);
-  background-attachment:fixed}
-.wrap{max-width:1080px;margin:0 auto;padding:20px 16px 48px}
-svg.ico{width:1em;height:1em;fill:currentColor;vertical-align:-.12em}
+html,body{height:100%}
+body{margin:0;background:var(--night);color:var(--paper);font-family:var(--px);font-size:15px;line-height:1.5;
+  background-image:
+    linear-gradient(var(--night-2) 0 0),
+    radial-gradient(circle,#fff 0 1px,transparent 1.5px);
+  background-size:100% 40%,0 0;background-repeat:no-repeat;
+  -webkit-font-smoothing:none}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none;image-rendering:pixelated;width:100%;height:100%}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:280px auto;gap:24px;justify-content:center;align-items:start;padding:20px 16px;min-height:100%}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr);justify-items:center;gap:14px;padding:12px}.field{order:-1}}
 
-/* 머리 */
-.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
-.title{display:flex;align-items:center;gap:12px}
-.title svg{width:46px;height:46px;fill:var(--gold);filter:drop-shadow(0 4px 10px #f5c45155)}
-.title h1{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,5vw,2.6rem);line-height:1;margin:0;letter-spacing:.01em}
-.title p{margin:4px 0 0;color:var(--fog-dim);font-size:.92rem}
-
-/* 깃발 점수판 */
-.banners{display:flex;gap:10px}
-.banner{position:relative;width:96px;padding:8px 8px 22px;text-align:center;color:#fff;
-  clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);transition:transform .3s}
-.banner.b{background:linear-gradient(180deg,var(--lapis),#1d47c4)}
-.banner.o{background:linear-gradient(180deg,var(--ember),#c9520a)}
-.banner .k{font-size:.72rem;opacity:.85}
-.banner .v{font-family:var(--display);font-size:2rem;line-height:1.05}
-.banner .u{font-size:.7rem;opacity:.85}
-.banner.turn{transform:translateY(6px)}
-.banner.turn::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--gold);clip-path:inherit}
-
-.layout{display:grid;grid-template-columns:minmax(0,520px) 1fr;gap:24px;align-items:start}
-@media (max-width:880px){.layout{grid-template-columns:1fr}}
+/* 왼쪽 패널 */
+.side{display:flex;flex-direction:column;gap:14px;width:100%;max-width:520px;min-width:0}
+.title{display:flex;align-items:center;gap:10px}
+.title canvas{width:56px;height:56px;image-rendering:pixelated}
+.title h1{font-family:"Galmuri14",var(--px);font-weight:700;font-size:28px;line-height:1;margin:0;color:var(--gold);
+  text-shadow:3px 3px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink)}
+.title p{margin:6px 0 0;font-size:12px;color:var(--dim)}
+.box{background:var(--panel);border:3px solid var(--ink);box-shadow:inset 3px 3px 0 var(--panel-hi),inset -3px -3px 0 #1c1838,4px 4px 0 var(--ink);padding:12px}
+.status{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;min-height:28px}
+.status i{width:16px;height:16px;border:3px solid var(--ink);flex:0 0 auto;display:block}
+.msg{font-size:12px;color:var(--dim);min-height:36px;margin-top:4px}
+.msg.err{color:#ff8a93}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.flag{position:relative;padding:8px 6px 18px;text-align:center;border:3px solid var(--ink);border-bottom:0;
+  clip-path:polygon(0 0,100% 0,100% 100%,75% 100%,75% 88%,50% 88%,50% 76%,50% 88%,25% 88%,25% 100%,0 100%)}
+.flag.b{background:var(--blue);box-shadow:inset 3px 3px 0 var(--blue-hi),inset -3px 0 0 var(--blue-lo)}
+.flag.o{background:var(--orange);box-shadow:inset 3px 3px 0 var(--orange-hi),inset -3px 0 0 var(--orange-lo)}
+.flag .k{font-size:11px}
+.flag .v{font-family:"Galmuri14",var(--px);font-size:30px;font-weight:700;line-height:1.1;text-shadow:2px 2px 0 var(--ink)}
+.flag.turn{outline:3px solid var(--gold);outline-offset:-9px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+select,.btn{font-family:var(--px);font-size:14px;color:var(--paper);background:var(--panel-hi);border:3px solid var(--ink);
+  box-shadow:inset 2px 2px 0 #5a52a0,inset -2px -2px 0 #262050,3px 3px 0 var(--ink);padding:8px 10px;cursor:pointer;border-radius:0}
+select{flex:1 1 140px}
+.btn{flex:1 1 auto}
+.btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:inset 2px 2px 0 #5a52a0,inset -2px -2px 0 #262050}
+.btn.gold{background:var(--gold);color:var(--ink);box-shadow:inset 2px 2px 0 #fff3a6,inset -2px -2px 0 #b88f00,3px 3px 0 var(--ink);font-weight:700}
+.btn:disabled{opacity:.45;cursor:default}
+select:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.judge{font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6}
+.judge b{color:var(--paper)}
+.toggles{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--dim);margin-top:10px}
+.toggles input{accent-color:var(--gold)}
+.credit{font-size:10px;color:#7d74a8}
+.credit a{color:#a99fff}
 
 /* 판 */
-.stage{background:var(--rampart);border-radius:18px;padding:16px;box-shadow:0 20px 50px #0007, inset 0 1px 0 #ffffff12}
-.status{font-family:var(--display);font-size:1.45rem;line-height:1.2;display:flex;align-items:center;gap:10px;min-height:1.6em}
-.status .dot{width:14px;height:14px;border-radius:50%;flex:0 0 auto;box-shadow:0 0 12px currentColor}
-.msg{color:var(--fog-dim);min-height:1.6em;font-size:.93rem;margin-top:2px}
-.msg.err{color:#ff8b97}
-.frame{position:relative;margin:12px 0 6px;padding:12px;border-radius:12px;
-  background:linear-gradient(145deg,#a3a7bd,#6d7290 55%,#575b77);
-  box-shadow:inset 0 2px 0 #ffffff55, inset 0 -3px 0 #0005, 0 10px 24px #0008}
-.board{display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);aspect-ratio:1;border-radius:6px;overflow:hidden;
-  box-shadow:inset 0 0 0 2px #0004, inset 0 6px 14px #0005;user-select:none;-webkit-tap-highlight-color:transparent}
-.cell{position:relative;border:0;padding:0;margin:0;min-width:0;min-height:0;overflow:hidden;background:var(--meadow-a);cursor:pointer;display:grid;place-items:center;font:inherit;color:inherit}
-.cell.alt{background:var(--meadow-b)}
-.cell::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 .5px #00000022;pointer-events:none}
-.cell.t1{background-image:linear-gradient(#2f6bff66,#2f6bff66)}
-.cell.t2{background-image:linear-gradient(#ff7a1a70,#ff7a1a70)}
-.cell .flag{width:42%;height:42%;opacity:.55;fill:#fff;position:absolute}
-.cell.no .x{position:absolute;width:30%;height:30%;opacity:.5}
-.cell.no .x::before,.cell.no .x::after{content:"";position:absolute;left:45%;top:-10%;width:12%;height:120%;background:#fff;border-radius:2px;transform:rotate(45deg)}
-.cell.no .x::after{transform:rotate(-45deg)}
-.cell:focus-visible{outline:3px solid var(--gold);outline-offset:-3px;z-index:2}
-@media (hover:hover){.cell.open:hover{background-image:radial-gradient(circle,#ffffff40 30%,transparent 32%)}}
-.piece{width:84%;height:84%;position:relative;z-index:1;filter:drop-shadow(0 3px 0 #0006) drop-shadow(0 6px 6px #0005)}
-.piece.b{fill:var(--lapis)}.piece.b .hl{fill:var(--lapis-l)}
-.piece.o{fill:var(--ember)}.piece.o .hl{fill:var(--ember-l)}
-.piece.n{fill:#d5d6e0;width:74%;height:74%}
-.libs{position:absolute;z-index:2;bottom:4%;right:6%;font-family:var(--display);font-size:clamp(.7rem,2.4vw,.95rem);color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000}
-.cell.atari{box-shadow:inset 0 0 0 3px var(--danger);animation:pulse 1s ease-in-out infinite}
-.cell.two{box-shadow:inset 0 0 0 3px var(--gold)}
-@keyframes pulse{50%{box-shadow:inset 0 0 0 5px var(--danger),inset 0 0 18px #ff3b4e88}}
-.cell.last .piece{animation:drop .42s cubic-bezier(.3,1.5,.5,1)}
-@keyframes drop{0%{transform:translateY(-60%) scale(1.25);opacity:0}60%{opacity:1}100%{transform:none}}
-.cell.last::before{content:"";position:absolute;z-index:3;top:7%;left:7%;width:15%;height:15%;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold)}
-.cell.dead .piece{fill:#3a3f55;animation:shake .5s}
-@keyframes shake{20%{transform:translateX(-8%) rotate(-6deg)}40%{transform:translateX(8%) rotate(5deg)}60%{transform:translateX(-5%)}80%{transform:translateX(3%)}}
-.dust{position:absolute;z-index:4;width:8px;height:8px;border-radius:50%;background:#d8cdb4;pointer-events:none;animation:dust .8s ease-out forwards}
-@keyframes dust{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+.field{position:relative;--size:min(calc(100vh - 40px),calc(100vw - 352px));width:var(--size);max-width:900px}
+@media (max-width:900px){.field{--size:calc(100vw - 24px)}}
+.wall{padding:clamp(6px,1.6vw,14px);background:var(--stone);border:4px solid var(--ink);
+  box-shadow:inset 4px 4px 0 var(--stone-hi),inset -4px -4px 0 var(--stone-lo),6px 6px 0 var(--ink);
+  background-image:linear-gradient(90deg,transparent 0 46%,var(--stone-lo) 46% 50%,transparent 50%),linear-gradient(transparent 0 46%,var(--stone-lo) 46% 50%,transparent 50%);
+  background-size:28px 14px}
+.board{display:grid;grid-template-columns:repeat(9,1fr);grid-template-rows:repeat(9,1fr);aspect-ratio:1;border:4px solid var(--ink);user-select:none;-webkit-tap-highlight-color:transparent}
+.cell{position:relative;min-width:0;min-height:0;border:0;padding:0;margin:0;cursor:pointer;background-color:#5aa04a;background-size:100% 100%;image-rendering:pixelated;display:grid;place-items:center;font:inherit;color:inherit}
+.cell img{width:88%;height:88%;image-rendering:pixelated;position:relative;z-index:1;pointer-events:none}
+.cell img.mark{width:56%;height:56%;position:absolute;opacity:.9;z-index:0}
+.cell.t1::before,.cell.t2::before{content:"";position:absolute;inset:0;z-index:0}
+.cell.t1::before{background:#3b6fe066;box-shadow:inset 0 0 0 3px #3b6fe0aa}
+.cell.t2::before{background:#f07a2266;box-shadow:inset 0 0 0 3px #f07a22aa}
+.cell.no .x{position:absolute;font-size:clamp(14px,3vw,30px);color:#fff;opacity:.55;text-shadow:2px 2px 0 var(--ink)}
+@media (hover:hover){.cell.open:hover::after{content:"";position:absolute;inset:8%;border:3px dashed #fffc;z-index:2}}
+.cell:focus-visible{outline:4px solid var(--gold);outline-offset:-4px;z-index:3}
+.cell.atari::after{content:"";position:absolute;inset:0;border:4px solid var(--red);z-index:2;animation:blink .6s steps(2) infinite}
+.cell.two::after{content:"";position:absolute;inset:0;border:4px solid var(--gold);z-index:2}
+@keyframes blink{50%{border-color:transparent}}
+.cell.last img:not(.mark){animation:drop .32s steps(4)}
+@keyframes drop{0%{transform:translateY(-70%)}75%{transform:translateY(6%)}100%{transform:none}}
+.cell.last .pin{position:absolute;top:5%;left:5%;width:14%;height:14%;background:var(--gold);border:2px solid var(--ink);z-index:3}
+.cell.dead img{animation:shake .5s steps(5)}
+@keyframes shake{20%{transform:translateX(-10%)}40%{transform:translateX(10%)}60%{transform:translateX(-6%)}80%{transform:translateX(4%)}}
+.libs{position:absolute;right:6%;bottom:2%;z-index:3;font-family:"Galmuri14",var(--px);font-weight:700;font-size:clamp(12px,2.4vw,22px);color:#fff;text-shadow:2px 2px 0 var(--ink),-1px -1px 0 var(--ink)}
 
-/* 승리 띠 */
-.win{position:absolute;inset:12px;display:none;place-items:center;pointer-events:none;z-index:5}
+.win{position:absolute;inset:0;display:none;place-items:center;z-index:5;background:#0d0b1888}
 .win.show{display:grid}
-.win .ribbon{pointer-events:auto;background:linear-gradient(180deg,#262f55f2,#151a33f2);border:2px solid var(--gold);border-radius:14px;padding:18px 22px;text-align:center;max-width:86%;
-  box-shadow:0 18px 40px #000a;animation:rise .5s cubic-bezier(.2,1.3,.4,1)}
-.win svg{width:54px;height:54px;fill:var(--gold);filter:drop-shadow(0 0 14px #f5c451aa)}
-.win h2{font-family:var(--display);font-weight:400;font-size:1.9rem;margin:4px 0 2px}
-.win p{margin:0 0 12px;color:var(--fog-dim)}
-@keyframes rise{from{transform:translateY(30px) scale(.9);opacity:0}}
-
-/* 조작 */
-.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
-.btn,select{font:inherit;font-size:.95rem;padding:9px 14px;border-radius:10px;border:1px solid #ffffff22;background:var(--rampart-2);color:var(--fog);cursor:pointer}
-.btn:hover:not(:disabled),select:hover{border-color:#ffffff55}
-.btn:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.btn.gold{background:var(--gold);color:#2a1d00;border-color:var(--gold);font-weight:700}
-.btn:disabled{opacity:.4;cursor:default}
-.setup{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.judge{margin-top:12px;padding:10px 12px;border-radius:10px;background:#0003;font-size:.92rem;color:var(--fog-dim)}
-.judge b{color:var(--fog)}
-.toggles{display:flex;flex-wrap:wrap;gap:14px;font-size:.88rem;color:var(--fog-dim);margin-top:10px}
-.toggles input{accent-color:var(--gold)}
-
-/* 설명 */
-.guide{display:flex;flex-direction:column;gap:14px}
-.sec{background:var(--rampart);border-radius:16px;padding:16px 18px;box-shadow:inset 0 1px 0 #ffffff10}
-.sec h2{font-family:var(--display);font-weight:400;font-size:1.35rem;margin:0 0 8px;color:var(--gold)}
-.sec h3{font-size:1rem;margin:14px 0 4px}
-.sec p,.sec li{margin:.3em 0;font-size:.95rem}
-.sec ul{padding-left:1.15em;margin:.3em 0}
-.lead{font-size:1.08rem!important}
-.lead b{color:var(--gold)}
-.ex{display:flex;gap:14px;align-items:center;margin:10px 0}
-.mini{display:grid;border-radius:5px;overflow:hidden;flex:0 0 auto;border:4px solid #7a7f9a}
-.mini .cell{width:30px;height:30px;cursor:default}
-.ex .cap{font-size:.9rem;color:var(--fog-dim)}
-.ex .cap b{color:var(--fog)}
-.big{font-family:var(--display);font-size:1.25rem;line-height:1.35;padding:12px 14px;border-left:4px solid var(--gold);background:#0003;border-radius:0 10px 10px 0;margin:6px 0 10px}
-.legend{display:grid;grid-template-columns:30px 1fr;gap:8px 12px;align-items:center;font-size:.92rem}
-.legend .cell{width:30px;height:30px;border-radius:4px;cursor:default}
-.credit{font-size:.8rem;color:var(--fog-dim)}
-a{color:var(--lapis-l)}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.dialog{background:var(--panel);border:4px solid var(--ink);box-shadow:inset 4px 4px 0 var(--panel-hi),inset -4px -4px 0 #1c1838,6px 6px 0 var(--ink);padding:20px 26px;text-align:center;max-width:86%;animation:pop .3s steps(3)}
+.dialog canvas{width:72px;height:72px;image-rendering:pixelated}
+.dialog h2{font-family:"Galmuri14",var(--px);font-size:26px;margin:6px 0;color:var(--gold);text-shadow:3px 3px 0 var(--ink)}
+.dialog p{margin:0 0 14px;font-size:13px;color:var(--dim)}
+@keyframes pop{from{transform:scale(.6)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important}}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-castle" viewBox="0 0 512 512"><path d="M255.95 27.11L180.6 107.614l150.7 1.168-75.35-81.674h-.003zM25 109.895v68.01l19.412 25.99h71.06l19.528-26v-68h-14v15.995h-18v-15.994H89v15.995H71v-15.994H57v15.995H39v-15.994H25zm352 0v68l19.527 26h71.06L487 177.906v-68.01h-14v15.995h-18v-15.994h-14v15.995h-18v-15.994h-14v15.995h-18v-15.994h-14zm-176 15.877V260.89h110V126.63l-110-.857zm55 20.118c8 0 16 4 16 12v32h-32v-32c0-8 8-12 16-12zM41 221.897V484.89h78V221.897H41zm352 0V484.89h78V221.897h-78zM56 241.89c4 0 8 4 8 12v32H48v-32c0-8 4-12 8-12zm400 0c4 0 8 4 8 12v32h-16v-32c0-8 4-12 8-12zm-303 37v23h-16v183h87v-55c0-24 16-36 32-36s32 12 32 36v55h87v-183h-16v-23h-14v23h-18v-23h-14v23h-18v-23h-14v23h-18v-23h-14v23h-18v-23h-14v23h-18v-23h-14v23h-18v-23h-14zm-49 43c4 0 8 4 8 12v32H96v-32c0-8 4-12 8-12zm72 0c8 0 16 4 16 12v32h-32v-32c0-8 8-12 16-12zm80 0c8 0 16 4 16 12v32h-32v-32c0-8 8-12 16-12zm80 0c8 0 16 4 16 12v32h-32v-32c0-8 8-12 16-12zm72 0c4 0 8 4 8 12v32h-16v-32c0-8 4-12 8-12zm-352 64c4 0 8 4 8 12v32H48v-32c0-8 4-12 8-12zm400 0c4 0 8 4 8 12v32h-16v-32c0-8 4-12 8-12z"/></symbol>
-  <symbol id="i-tower" viewBox="0 0 512 512"><path d="M97.812 23.375v92.875l46.22 51.72V351h-25.845L94.594 491.906H414.53L390.938 351h-25.875V167.97l46.22-51.72V23.375h-53.938v43.97H324.5v-43.97h-53.938v43.97h-32.437v-43.97h-53.938v43.97H151.75v-43.97H97.812zm73.75 152.875h18.688v50.22h-18.688v-50.22zm73.594 0h18.688v50.22h-18.688v-50.22zm74.156 0H338v50.22h-18.688v-50.22z"/></symbol>
-  <symbol id="i-ruins" viewBox="0 0 512 512"><path d="M382.975 17.701L306.678 119.43 459.27 93.998l-76.296-76.297zM106.24 77.895l-17.5 4.21 34.05 141.487 13.6-20.405-30.15-125.292zm-35.209 7.683c-8.85 41.457-17.725 90.065-41.402 111.129 9.026 2.35 21.416-1.194 34.652-23.71 6.948 15.963 2.313 17.464-1.957 28.737 16.561-3.429 25.204-18.531 24.873-37.806l-16.166-78.35zm366.957 30.215L361 128.623V160h-18v-28.377l-32 5.334V199h82v32h30v-32h15.846l-18.776-56.33 17.918-26.877zM148.816 217l-31.04 46.563-41.085 13.695 32 63.998-55.83 18.611L25 387.727V487h90.512l-11.075-33.225-45.43-30.287 9.985-14.976 50.57 33.713L134.488 487h147.95l27.845-55.69-13.398-40.195L208 361.488l-45.154 15.051-5.692-17.078 44.04-14.68 28.245-70.613L204.273 249H151v-32h-2.184zM217 217v19.273l28.33 28.329 62.695 31.347-8.05 16.102-55.252-27.625-24.82 62.054 91.212 30.405 16.752 50.254 31.53 31.529L373.562 487H487V336.816L452.525 359.8l-32.5 16.252-8.05-16.102 31.5-15.748L487 315.184V217h-46v32h-66v-32h-46v32h-66v-32h-46z"/></symbol>
-  <symbol id="i-flag" viewBox="0 0 512 512"><path d="M356.688 19.188c-6.83-.032-12.837.64-18.125 1.843-24.178 5.495-36.437 21.983-50.938 41.157-14.5 19.175-31.317 40.993-62.78 47.47C195.08 115.78 154.27 108.253 91.25 78.5c-10.013 44.88-33.406 128.62-60.906 178.656 60.093 28.5 97.245 34.926 121 30.875.01 0 .02.004.03 0 21.59-5.827 34.487-20.094 47.876-43.092 17.014-29.227 32.563-72.198 60.25-123.188l16.406 8.938c-16.69 30.735-28.802 58.617-40 82.937 8.552-6.512 18.633-11.77 31.063-14.594 27.71-6.296 65.053-.495 121.655 24.75-6.932-29.276-1.885-61.913 9.875-92.218 12.686-32.69 33.038-62.907 56.28-84.03-42.595-19.553-73.152-27.554-95.124-28.282-1.01-.033-1.993-.058-2.97-.063zm127.54 14.144c-.858-.025-1.752.062-2.664.266-4.378.977-8.94 4.424-12.084 11.097L289.53 497.31h23.61L490.972 49.368c3.475-10.153-.75-15.86-6.746-16.035z"/></symbol>
-  <symbol id="i-crown" viewBox="0 0 512 512"><path d="M408.256 119.46l-37.7 52.165 19.57 44.426 34.8-37.214-16.67-59.375zm86.074 12.513L384.44 249.498 334.01 135.02l-75.162 132.947-86.948-131.78-33.334 114.122L17.922 132.83l39.3 127.6c1.945-.348 3.94-.54 5.98-.54 18.812 0 34.26 15.452 34.26 34.262 0 13.823-8.346 25.822-20.235 31.22l5.337 17.33c12.425 25.466 71.863 45.152 176.582 47.206 110.805 2.174 178.12-17.54 189.854-47.207h-.002l4.357-20.26c-16.836-2.114-30.02-16.612-30.02-33.986 0-18.81 15.45-34.262 34.263-34.262 3.513 0 6.91.54 10.11 1.54l26.622-123.762zm-391.77 2.04l1.22 56.337 25.56 24.89 9.592-32.842-36.37-48.386zm150.585 2.91l-24.483 51.36 28.955 43.885 24.922-44.08-29.395-51.166zm204.453 135.962c-8.712 0-15.575 6.862-15.575 15.572 0 8.71 6.863 15.574 15.575 15.574s15.572-6.863 15.572-15.573-6.86-15.572-15.572-15.572zM63.2 278.58c-8.71 0-15.573 6.864-15.573 15.574s6.862 15.573 15.574 15.573c8.713 0 15.573-6.862 15.573-15.573 0-8.71-6.86-15.574-15.572-15.574zm130.33 17.842c18.812 0 34.26 15.45 34.26 34.262 0 18.81-15.448 34.26-34.26 34.26-18.813 0-34.262-15.45-34.262-34.26s15.45-34.262 34.26-34.262zm131.234 0c18.812 0 34.26 15.45 34.26 34.262 0 18.81-15.448 34.26-34.26 34.26-18.813 0-34.262-15.45-34.262-34.26s15.45-34.262 34.262-34.262zm-131.235 18.69c-8.713 0-15.573 6.86-15.573 15.572 0 8.71 6.86 15.574 15.572 15.574 8.71 0 15.572-6.864 15.572-15.574s-6.86-15.573-15.573-15.573zm131.234 0c-8.712 0-15.573 6.86-15.573 15.572 0 8.71 6.862 15.574 15.574 15.574s15.574-6.864 15.574-15.574-6.862-15.573-15.574-15.573z"/></symbol>
-</svg>
-
-<div class="wrap">
-  <header class="top">
+<canvas id="stars"></canvas>
+<div class="app">
+  <aside class="side">
     <div class="title">
-      <svg aria-hidden="true"><use href="#i-castle"/></svg>
-      <div>
-        <h1>그레이트 킹덤</h1>
-        <p>성을 쌓아 땅을 넓히고, 내 성은 갇히지 않게</p>
-      </div>
+      <canvas id="logo" width="16" height="16"></canvas>
+      <div><h1>그레이트 킹덤</h1><p>성을 쌓아 땅을 넓히고, 내 성은 갇히지 않게</p></div>
     </div>
-    <div class="banners" aria-label="영토 칸 수">
-      <div class="banner b" id="banB"><div class="k">파랑 영토</div><div class="v" id="sb">0</div><div class="u">칸</div></div>
-      <div class="banner o" id="banO"><div class="k">주황 영토</div><div class="v" id="so">0</div><div class="u">칸</div></div>
-    </div>
-  </header>
 
-  <div class="layout">
-    <section class="stage" aria-label="게임판">
-      <div class="setup">
+    <div class="box">
+      <div class="status" id="status"></div>
+      <div class="msg" id="msg" aria-live="polite"></div>
+      <div class="scores" aria-label="영토 칸 수">
+        <div class="flag b" id="banB"><div class="k">파랑 영토</div><div class="v" id="sb">0</div></div>
+        <div class="flag o" id="banO"><div class="k">주황 영토</div><div class="v" id="so">0</div></div>
+      </div>
+      <div class="judge" id="judge"></div>
+    </div>
+
+    <div class="box">
+      <div class="row">
         <select id="opp" aria-label="상대">
           <option value="easy">컴퓨터 · 쉬움</option>
           <option value="normal" selected>컴퓨터 · 보통</option>
@@ -184,86 +131,30 @@ a{color:var(--lapis-l)}
           <option value="1" selected>나는 파랑 (먼저)</option>
           <option value="2">나는 주황 (나중)</option>
         </select>
+      </div>
+      <div class="row" style="margin-top:10px">
         <button class="btn gold" id="newBtn">새 판</button>
-      </div>
-
-      <div class="status" id="status"></div>
-      <div class="msg" id="msg" aria-live="polite"></div>
-
-      <div class="frame">
-        <div class="board" id="board"></div>
-        <div class="win" id="win"><div class="ribbon">
-          <svg aria-hidden="true"><use href="#i-crown"/></svg>
-          <h2 id="winTitle"></h2><p id="winSub"></p>
-          <button class="btn gold" id="againBtn">한 판 더</button>
-        </div></div>
-      </div>
-
-      <div class="bar">
         <button class="btn" id="passBtn">패스</button>
-        <button class="btn" id="undoBtn">한 수 무르기</button>
+        <button class="btn" id="undoBtn">무르기</button>
       </div>
-      <div class="judge" id="judge"></div>
       <div class="toggles">
-        <label><input type="checkbox" id="tTerr" checked> 영토 색칠</label>
-        <label><input type="checkbox" id="tDanger" checked> 위험 테두리</label>
+        <label><input type="checkbox" id="tTerr" checked> 영토 표시</label>
+        <label><input type="checkbox" id="tDanger" checked> 위험 테두리 (빨강 = 숨구멍 1개, 노랑 = 2개)</label>
         <label><input type="checkbox" id="tLibs"> 숨구멍 숫자</label>
       </div>
-    </section>
+    </div>
 
-    <aside class="guide">
-      <div class="sec">
-        <h2>한 줄로</h2>
-        <p class="lead">성으로 <b>울타리</b>를 쳐서 마당을 넓히는 게임. 하지만 내 성이 사방으로 갇히면 <b>그 즉시 집니다.</b></p>
-      </div>
+    <p class="credit">비공식 연습판 · 규칙 영상 <a href="https://youtu.be/CfHRVZ1glO4" target="_blank" rel="noopener">공식</a> · <a href="https://youtu.be/axze9vCOg5o" target="_blank" rel="noopener">현옹</a> · 글꼴 <a href="https://galmuri.quiple.dev" target="_blank" rel="noopener">갈무리</a> (OFL)</p>
+  </aside>
 
-      <div class="sec">
-        <h2>규칙</h2>
-        <h3>번갈아 성 쌓기</h3>
-        <p>파랑이 먼저. 내 차례엔 빈칸에 성 1개를 놓거나 <b>패스</b>. 가운데 흰 탑은 누구 편도 아닌 중립 성이에요.</p>
-
-        <h3>울타리 친 빈 땅 = 내 마당</h3>
-        <div class="ex"><div class="mini" data-rows=". . B . .|B B B . .|. . . . ."></div>
-          <div class="cap">판 끝과 파랑 성이 막은 <b>왼쪽 위 2칸</b>이 파랑 마당. 판 끝과 중립 성도 울타리 역할을 해요.</div></div>
-        <ul>
-          <li>상대 마당 안에는 성을 <b>못 놓아요</b>. 판에 ✕로 보여요.</li>
-          <li>울타리 안에 상대 성이 하나라도 있으면 마당이 아니에요.</li>
-          <li>판의 네 변에 모두 닿는 빈 땅은 마당이 아니에요. 처음 빈 판이 그 상태라 처음엔 아무도 마당이 없어요.</li>
-        </ul>
-
-        <h3>포위하면 즉시 승리</h3>
-        <div class="ex"><div class="mini" data-rows=". O .|O x O|. O ."></div>
-          <div class="cap">파랑 성의 위·아래·왼쪽·오른쪽이 다 막힘 → 무너지고 <b>주황 승</b>.</div></div>
-        <div class="ex"><div class="mini" data-rows=". O O .|O x x O|. O O ."></div>
-          <div class="cap">붙어 있는 성은 <b>한 덩어리</b>. 덩어리 둘레가 전부 막혀야 무너져요.</div></div>
-        <p class="credit">둘이 동시에 갇히면 방금 성을 놓은 사람이 이겨요. 놓자마자 내 성만 갇히는 자리는 이 연습판에서 막아 뒀어요.</p>
-
-        <h3>아무도 못 잡으면 마당 넓이로</h3>
-        <p>둘이 연달아 패스하면 끝. 파랑이 주황보다 <b>3칸 이상</b> 많아야 파랑 승, 아니면 주황 승이에요. 먼저 두는 대신 지는 핸디캡이에요.</p>
-      </div>
-
-      <div class="sec">
-        <h2>핵심은 숨구멍</h2>
-        <div class="big">숨구멍 = 내 성 바로 옆 빈칸.<br>0개가 되면 무너지고, 무너지면 끝.</div>
-        <ul>
-          <li><b>내 숨구멍이 1~2개</b>면 위험해요. 먼저 이어 붙이거나 늘리세요.</li>
-          <li><b>상대 숨구멍이 1개</b>면 막아서 바로 이길 수 있어요.</li>
-          <li><b>잇고 끊기</b>: 내 성은 붙여 한 덩어리로, 상대 성은 사이를 끊어 작게 만드세요.</li>
-          <li><b>마당은 작아도 닫기</b>: 닫힌 마당엔 상대가 못 들어와요.</li>
-          <li><b>공격이 곧 수비</b>: 상대가 막느라 바쁘면 마당을 못 넓혀요.</li>
-          <li><b>파랑</b>은 3칸 더 따야 하니 적극적으로, <b>주황</b>은 안 잡히고 버티면 유리해요.</li>
-        </ul>
-      </div>
-
-      <div class="sec">
-        <h2>판 읽는 법</h2>
-        <div class="legend" id="legend"></div>
-      </div>
-
-      <p class="credit">규칙 영상: <a href="https://youtu.be/CfHRVZ1glO4" target="_blank" rel="noopener">코리아보드게임즈 공식</a> · <a href="https://youtu.be/axze9vCOg5o" target="_blank" rel="noopener">현옹 룰 설명</a>. 9×9 판 비공식 연습판이에요. 점수(3칸)는 공식 영상 기준이라 현장 룰북과 다르면 룰북을 따르세요.<br>
-      아이콘: <a href="https://game-icons.net" target="_blank" rel="noopener">game-icons.net</a> — Delapouite(castle, castle-ruins) · Lorc(white-tower, flying-flag, crown), CC BY 3.0.</p>
-    </aside>
-  </div>
+  <main class="field">
+    <div class="wall"><div class="board" id="board"></div></div>
+    <div class="win" id="win"><div class="dialog">
+      <canvas id="crown" width="16" height="16"></canvas>
+      <h2 id="winTitle"></h2><p id="winSub"></p>
+      <button class="btn gold" id="againBtn">한 판 더</button>
+    </div></div>
+  </main>
 </div>
 
 <script>
@@ -439,25 +330,112 @@ function aiChoose(b, me, level, oppPassed) {
   return pick.m.i;
 }
 
+// ---------- 도트 그림 ----------
+const PAL = {
+  1: { hi: "#7aa2ff", mid: "#3b6fe0", lo: "#1d3b8f", flag: "#ffd23f" },
+  2: { hi: "#ffb066", mid: "#f07a22", lo: "#9a4210", flag: "#ffd23f" },
+  3: { hi: "#e4e4ee", mid: "#b6b7c9", lo: "#6d6f88", flag: "#ffffff" },
+};
+const INK = "#0d0b18";
+
+function makeCanvas() { const c = document.createElement("canvas"); c.width = c.height = 16; return c; }
+function px(ctx, x, y, col) { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); }
+
+// 사각형 목록으로 모양을 만들고, 테두리·명암을 자동으로 칠한다
+function sprite(rects, pal, extra) {
+  const c = makeCanvas(), ctx = c.getContext("2d");
+  const m = Array.from({ length: 16 }, () => new Array(16).fill(0));
+  for (const [x, y, w, h] of rects) for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) m[j][i] = 1;
+  const on = (x, y) => x >= 0 && y >= 0 && x < 16 && y < 16 && m[y][x];
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+    if (on(x, y)) continue;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (on(x + dx, y + dy)) { px(ctx, x, y, INK); dy = dx = 2; }
+  }
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) {
+    if (!on(x, y)) continue;
+    let col = pal.mid;
+    if (!on(x - 1, y) || !on(x, y - 1)) col = pal.hi;
+    if (!on(x + 1, y) || !on(x, y + 1)) col = pal.lo;
+    else if (y % 3 === 1 && (x + (y % 6 === 1 ? 0 : 2)) % 4 === 0) col = pal.lo;
+    px(ctx, x, y, col);
+  }
+  if (extra) extra(ctx, pal);
+  return c.toDataURL();
+}
+
+const CASTLE = [
+  [1, 6, 4, 9], [1, 5, 1, 1], [3, 5, 2, 1],
+  [11, 6, 4, 9], [11, 5, 2, 1], [14, 5, 1, 1],
+  [5, 4, 6, 11], [5, 3, 1, 1], [7, 3, 2, 1], [10, 3, 1, 1],
+];
+function castleExtra(ctx, pal) {
+  for (const [x, y, w, h] of [[7, 11, 2, 4], [2, 9, 1, 2], [13, 9, 1, 2], [6, 7, 1, 1], [9, 7, 1, 1]]) {
+    ctx.fillStyle = INK; ctx.fillRect(x, y, w, h);
+  }
+  ctx.fillStyle = INK; ctx.fillRect(8, 0, 1, 3);
+  ctx.fillStyle = pal.flag; ctx.fillRect(9, 0, 3, 1); ctx.fillRect(9, 1, 2, 1);
+}
+const TOWER = [[5, 4, 6, 11], [5, 3, 1, 1], [7, 3, 2, 1], [10, 3, 1, 1]];
+function towerExtra(ctx) {
+  ctx.fillStyle = INK; ctx.fillRect(7, 11, 2, 4); ctx.fillRect(7, 7, 2, 1);
+}
+const RUINS = [[1, 11, 4, 4], [2, 9, 2, 2], [5, 12, 4, 3], [9, 10, 3, 5], [10, 8, 1, 2], [12, 12, 3, 3]];
+function ruinsExtra(ctx, pal) {
+  ctx.fillStyle = INK; ctx.fillRect(13, 5, 1, 7);
+  ctx.fillStyle = pal.mid; ctx.fillRect(14, 5, 2, 2);
+}
+function grass(seed, light) {
+  const c = makeCanvas(), ctx = c.getContext("2d");
+  let s = seed * 9301 + 49297;
+  const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  ctx.fillStyle = light ? "#62a851" : "#579b47"; ctx.fillRect(0, 0, 16, 16);
+  for (let k = 0; k < 22; k++) px(ctx, (rnd() * 16) | 0, (rnd() * 16) | 0, rnd() < .5 ? "#4a8a3c" : "#73b85f");
+  for (let k = 0; k < 3; k++) { const x = (rnd() * 14) | 0, y = (rnd() * 14 + 1) | 0; px(ctx, x, y, "#3f7a33"); px(ctx, x + 1, y - 1, "#3f7a33"); }
+  if (rnd() < .25) px(ctx, (rnd() * 16) | 0, (rnd() * 16) | 0, rnd() < .5 ? "#ffe680" : "#ff9ec4");
+  return c.toDataURL();
+}
+function banner(pal) {
+  const c = makeCanvas(), ctx = c.getContext("2d");
+  ctx.fillStyle = INK; ctx.fillRect(4, 2, 1, 12); ctx.fillRect(3, 13, 3, 1);
+  ctx.fillRect(5, 2, 8, 1); ctx.fillRect(5, 8, 8, 1); ctx.fillRect(12, 2, 1, 7);
+  ctx.fillStyle = pal.mid; ctx.fillRect(5, 3, 7, 5);
+  ctx.fillStyle = pal.hi; ctx.fillRect(5, 3, 7, 1);
+  ctx.fillStyle = pal.lo; ctx.fillRect(5, 7, 7, 1);
+  return c.toDataURL();
+}
+function crown(cv) {
+  const ctx = cv.getContext("2d");
+  const rows = ["................", "..k....k....k...", ".kyk..kyk..kyk..", ".kyyk.kyyk.kyyk.", ".kyyykyyyykyyyk.", ".kyyyyyyyyyyyyk.", ".kyrryybbyyrryk.", ".kyrryybbyyrryk.", ".kyyyyyyyyyyyyk.", ".kooooooooooook.", ".kkkkkkkkkkkkkk."];
+  const col = { k: INK, y: "#ffd23f", o: "#c99a00", r: "#ff3e4d", b: "#3b6fe0" };
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (col[ch]) px(ctx, x, y + 3, col[ch]); }));
+}
+
+const IMG = {
+  castle: { 1: sprite(CASTLE, PAL[1], castleExtra), 2: sprite(CASTLE, PAL[2], castleExtra) },
+  ruins: { 1: sprite(RUINS, PAL[1], ruinsExtra), 2: sprite(RUINS, PAL[2], ruinsExtra) },
+  tower: sprite(TOWER, PAL[3], towerExtra),
+  banner: { 1: banner(PAL[1]), 2: banner(PAL[2]) },
+};
+const GRASS = Array.from({ length: SZ }, (_, i) => grass(i + 7, (((i / N) | 0) + i % N) % 2 === 0));
+{
+  const lg = document.getElementById("logo").getContext("2d");
+  const im = new Image(); im.onload = () => lg.drawImage(im, 0, 0); im.src = IMG.castle[1];
+  crown(document.getElementById("crown"));
+  const st = document.getElementById("stars"), sc = st.getContext("2d");
+  const draw = () => {
+    st.width = Math.ceil(innerWidth / 4); st.height = Math.ceil(innerHeight / 4);
+    sc.fillStyle = "#17142b"; sc.fillRect(0, 0, st.width, st.height);
+    let s = 42; const r = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+    for (let k = 0; k < st.width * st.height / 260; k++) { sc.fillStyle = r() < .2 ? "#fff" : "#6f66a8"; sc.fillRect((r() * st.width) | 0, (r() * st.height) | 0, 1, 1); }
+  };
+  draw(); addEventListener("resize", draw);
+}
+
 // ---------- 화면 ----------
 const $ = id => document.getElementById(id);
 let S, history = [], thinking = false;
-const SVGNS = "http://www.w3.org/2000/svg";
 
-function icon(id, cls) {
-  const s = document.createElementNS(SVGNS, "svg");
-  s.setAttribute("viewBox", "0 0 512 512");
-  s.setAttribute("class", cls);
-  s.setAttribute("aria-hidden", "true");
-  const u = document.createElementNS(SVGNS, "use");
-  u.setAttribute("href", "#" + id);
-  s.appendChild(u);
-  return s;
-}
-function pieceEl(v, dead) {
-  if (v === NEUT) return icon("i-tower", "piece n");
-  return icon(dead ? "i-ruins" : "i-castle", "piece " + (v === BLUE ? "b" : "o"));
-}
+function img(src, cls) { const e = document.createElement("img"); e.src = src; e.alt = ""; if (cls) e.className = cls; return e; }
 
 function newGame() {
   const b = new Int8Array(SZ);
@@ -501,7 +479,7 @@ function pass() {
     setMsg("");
   } else {
     S.toMove = 3 - who;
-    setMsg(NAME[who] + "이(가) 패스했어요. 이어서 패스하면 게임이 끝나고 마당을 셉니다.");
+    setMsg(NAME[who] + "이(가) 패스했어요. 이어서 패스하면 끝나고 영토를 셉니다.");
   }
 }
 
@@ -516,17 +494,6 @@ function maybeAI() {
   }, 420);
 }
 
-function burst(cell) {
-  for (let k = 0; k < 7; k++) {
-    const d = document.createElement("span");
-    d.className = "dust";
-    const a = Math.random() * Math.PI * 2, r = 18 + Math.random() * 22;
-    d.style.setProperty("--dx", Math.cos(a) * r + "px");
-    d.style.setProperty("--dy", Math.sin(a) * r + "px");
-    cell.appendChild(d);
-  }
-}
-
 function render() {
   const showT = $("tTerr").checked, showD = $("tDanger").checked, showL = $("tLibs").checked;
   const t1 = territory(S.b, BLUE), t2 = territory(S.b, ORANGE);
@@ -538,35 +505,36 @@ function render() {
   const bd = $("board");
   bd.innerHTML = "";
   for (let i = 0; i < SZ; i++) {
-    const r = (i / N) | 0, c = i % N;
+    const r = (i / N) | 0, c = i % N, v = S.b[i];
     const cell = document.createElement("button");
-    cell.className = "cell" + ((r + c) % 2 ? " alt" : "");
-    const v = S.b[i];
+    cell.className = "cell";
+    cell.style.backgroundImage = "url(" + GRASS[i] + ")";
     let label = (r + 1) + "행 " + (c + 1) + "열";
     if (v === EMPTY) {
       if (showT && (t1.mask[i] || t2.mask[i])) {
-        cell.classList.add(t1.mask[i] ? "t1" : "t2");
-        cell.appendChild(icon("i-flag", "flag"));
-        label += (t1.mask[i] ? " 파랑" : " 주황") + " 영토";
+        const col = t1.mask[i] ? BLUE : ORANGE;
+        cell.classList.add(col === BLUE ? "t1" : "t2");
+        cell.appendChild(img(IMG.banner[col], "mark"));
+        label += " " + NAME[col] + " 영토";
       }
       if (!S.over && blockMask[i]) {
         cell.classList.add("no");
-        const x = document.createElement("span"); x.className = "x"; cell.appendChild(x);
+        const x = document.createElement("span"); x.className = "x"; x.textContent = "✕"; cell.appendChild(x);
       } else if (myTurn) cell.classList.add("open");
+    } else if (v === NEUT) {
+      cell.appendChild(img(IMG.tower));
+      label += " 중립 성";
     } else {
-      cell.appendChild(pieceEl(v, dead.has(i)));
-      label += v === NEUT ? " 중립 성" : " " + NAME[v] + " 성";
-      if (v !== NEUT) {
-        if (showL) { const n = document.createElement("span"); n.className = "libs"; n.textContent = libOf[i]; cell.appendChild(n); }
-        if (showD && !S.over) {
-          if (libOf[i] === 1) cell.classList.add("atari");
-          else if (libOf[i] === 2) cell.classList.add("two");
-        }
-        label += ", 숨구멍 " + libOf[i] + "개";
+      cell.appendChild(img(dead.has(i) ? IMG.ruins[v] : IMG.castle[v]));
+      label += " " + NAME[v] + " 성, 숨구멍 " + libOf[i] + "개";
+      if (showL) { const n = document.createElement("span"); n.className = "libs"; n.textContent = libOf[i]; cell.appendChild(n); }
+      if (showD && !S.over) {
+        if (libOf[i] === 1) cell.classList.add("atari");
+        else if (libOf[i] === 2) cell.classList.add("two");
       }
     }
-    if (i === S.last) cell.classList.add("last");
-    if (dead.has(i)) { cell.classList.add("dead"); burst(cell); }
+    if (i === S.last) { cell.classList.add("last"); const p = document.createElement("span"); p.className = "pin"; cell.appendChild(p); }
+    if (dead.has(i)) cell.classList.add("dead");
     cell.setAttribute("aria-label", label);
     cell.onclick = () => {
       if (S.over || thinking || isAITurn()) return;
@@ -581,31 +549,22 @@ function render() {
   $("banO").classList.toggle("turn", !S.over && S.toMove === ORANGE);
 
   const diff = t1.count - t2.count;
-  const nowWin = diff >= 3 ? BLUE : ORANGE;
-  $("judge").innerHTML = S.over ? "다시 하려면 <b>새 판</b>을 누르세요." :
-    "지금 둘 다 패스하면 <b>" + NAME[nowWin] + " 승</b> · 파랑−주황 = " + (diff > 0 ? "+" : "") + diff + "칸 (파랑은 +3 이상 필요)";
+  $("judge").innerHTML = S.over ? "다시 하려면 <b>새 판</b>." :
+    "지금 둘 다 패스하면 <b>" + NAME[diff >= 3 ? BLUE : ORANGE] + " 승</b><br>파랑−주황 " + (diff > 0 ? "+" : "") + diff + "칸 · 파랑은 +3 이상 필요";
 
   const tag = col => vsAI() ? (col === human() ? " · 나" : " · 컴퓨터") : "";
   const st = $("status");
+  const who = S.over ? S.winner : S.toMove;
   st.innerHTML = "";
-  const dot = document.createElement("span"); dot.className = "dot";
+  const dot = document.createElement("i");
+  dot.style.background = who === BLUE ? "var(--blue)" : "var(--orange)";
   const txt = document.createElement("span");
-  if (S.over) {
-    txt.textContent = NAME[S.winner] + " 승리";
-    dot.style.background = S.winner === BLUE ? "var(--lapis)" : "var(--ember)";
-    dot.style.color = dot.style.background;
-  } else {
-    txt.textContent = thinking ? "컴퓨터가 생각하고 있어요…" : NAME[S.toMove] + " 차례" + tag(S.toMove);
-    dot.style.background = S.toMove === BLUE ? "var(--lapis)" : "var(--ember)";
-    dot.style.color = dot.style.background;
-  }
+  txt.textContent = S.over ? NAME[S.winner] + " 승리!" : thinking ? "컴퓨터 생각 중…" : NAME[S.toMove] + " 차례" + tag(S.toMove);
   st.append(dot, txt);
 
-  const win = $("win");
-  win.classList.toggle("show", S.over);
+  $("win").classList.toggle("show", S.over);
   if (S.over) {
-    const you = vsAI() ? (S.winner === human() ? "내가 이겼어요!" : "컴퓨터가 이겼어요") : NAME[S.winner] + " 승리!";
-    $("winTitle").textContent = you;
+    $("winTitle").textContent = vsAI() ? (S.winner === human() ? "내가 이겼다!" : "컴퓨터 승리") : NAME[S.winner] + " 승리!";
     $("winSub").textContent = S.reason === "capture"
       ? NAME[S.winner] + "이(가) 상대 성을 포위해 무너뜨렸어요."
       : "둘 다 패스 · 파랑 " + t1.count + "칸 : 주황 " + t2.count + "칸";
@@ -623,41 +582,6 @@ function undo() {
   render();
   maybeAI();
 }
-
-// 설명 칸의 작은 판
-function drawMini(el) {
-  const rows = el.dataset.rows.split("|").map(r => r.trim().split(/\s+/));
-  const w = rows[0].length;
-  el.style.gridTemplateColumns = "repeat(" + w + ",30px)";
-  rows.forEach((row, y) => row.forEach((ch, x) => {
-    const cell = document.createElement("div");
-    cell.className = "cell" + ((x + y) % 2 ? " alt" : "");
-    if (ch === "B") cell.appendChild(pieceEl(BLUE));
-    else if (ch === "O") cell.appendChild(pieceEl(ORANGE));
-    else if (ch === "N") cell.appendChild(pieceEl(NEUT));
-    else if (ch === "x") { cell.classList.add("dead"); cell.appendChild(pieceEl(BLUE, true)); }
-    el.appendChild(cell);
-  }));
-  if (el.dataset.rows.startsWith(". . B")) for (const k of [0, 1]) {
-    el.children[k].classList.add("t1");
-    el.children[k].appendChild(icon("i-flag", "flag"));
-  }
-}
-document.querySelectorAll(".mini").forEach(drawMini);
-
-function legendRow(make, text) {
-  const cell = document.createElement("div");
-  cell.className = "cell";
-  make(cell);
-  const t = document.createElement("div");
-  t.innerHTML = text;
-  $("legend").append(cell, t);
-}
-legendRow(c => { c.classList.add("t1"); c.appendChild(icon("i-flag", "flag")); }, "깃발 칸 = 그 색의 마당");
-legendRow(c => { c.classList.add("atari"); c.appendChild(pieceEl(BLUE)); }, "<b>빨간 테두리</b> — 숨구멍 1개. 다음 수에 무너질 수 있어요");
-legendRow(c => { c.classList.add("two"); c.appendChild(pieceEl(ORANGE)); }, "<b>노란 테두리</b> — 숨구멍 2개. 조심");
-legendRow(c => { c.classList.add("no"); const x = document.createElement("span"); x.className = "x"; c.appendChild(x); }, "✕ — 지금 차례인 사람이 못 놓는 칸 (상대 마당)");
-legendRow(c => { c.classList.add("last"); c.appendChild(pieceEl(BLUE)); }, "금색 점 — 방금 놓은 성");
 
 $("newBtn").onclick = newGame;
 $("againBtn").onclick = newGame;
