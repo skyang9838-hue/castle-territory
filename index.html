@@ -287,21 +287,131 @@ function evaluate(b, me) {
   return (tMe.count - tOp.count) + inf * 0.5 + safety;
 }
 
-// color가 둘 차례일 때 color가 얻을 수 있는 가장 좋은 점수
-function bestReply(b, color) {
-  const moves = legalMoves(b, color);
-  let best = evaluate(b, color); // 패스
-  for (const m of moves) {
-    if (m.capture) return 10000;
-    const v = evaluate(m.board, color);
+function finalWinner(b) {
+  const tb = territory(b, BLUE).count, to = territory(b, ORANGE).count;
+  return tb - to >= 3 ? BLUE : ORANGE;
+}
+
+// ---------- 수 읽기 (알파베타) ----------
+// 몇 수 앞까지 서로 최선을 둔다고 보고 고른다. 정해 둔 시간 안에서 1수, 2수, 3수 … 점점 깊이 읽는다.
+// 보통: 2수까지 (몰이는 끝까지 따라감) · 어려움: 2초 안에서 가능한 만큼
+const WIN = 1e6, THINK = {
+  normal: { ms: 500, depth: 2, width: [14, 10, 7, 5] },
+  hard: { ms: 2000, depth: 30, width: [20, 14, 10, 8] },
+};
+let WIDTH = THINK.hard.width; // 깊이(수)마다 몇 개까지 볼지
+let deadline = 0;
+const TIMEOUT = {};
+
+// 후보 수를 판 점수 순으로. 잡는 수가 있으면 null (바로 이김)
+// near면 성에서 두 칸 안쪽 빈칸만 본다 (먼 빈칸까지 다 점수 매기면 깊이 못 읽는다)
+let orderCache = new Map();
+function orderedMoves(b, color, near) {
+  const key = near ? color + b.join("") : "";
+  if (near && orderCache.has(key)) return orderCache.get(key);
+  let moves = legalMoves(b, color);
+  for (const m of moves) if (m.capture) return null;
+  if (near) {
+    const d = new Int8Array(SZ).fill(9);
+    for (let i = 0; i < SZ; i++) if (b[i] !== EMPTY) d[i] = 0;
+    for (let k = 0; k < 2; k++)
+      for (let i = 0; i < SZ; i++) if (d[i] === k) for (const j of NB[i]) if (d[j] > k + 1) d[j] = k + 1;
+    moves = moves.filter(m => d[m.i] <= 2);
+  }
+  for (const m of moves) m.v = evaluate(m.board, color);
+  moves.sort((a, c) => c.v - a.v);
+  if (near) orderCache.set(key, moves.slice(0, WIDTH[1]));
+  return moves;
+}
+
+// 읽기 끝에서 몰이(빈칸 1~2개 남은 성)만 더 따라가 본다. 몰이를 중간에 끊고 점수를 매기면 다 잡힌 성을 못 본다
+function quiet(b, color, alpha, beta, ply, qd) {
+  if (performance.now() > deadline) throw TIMEOUT;
+  const opp = 3 - color, oppMask = territory(b, opp).mask, myMask = territory(b, color).mask;
+  const urgent = new Set();
+  let inAtari = false;
+  for (const g of allGroups(b)) {
+    if (g.libs.size > 2) continue;
+    if (g.libs.size === 1) {
+      const [l] = g.libs;
+      if (g.color === opp && !oppMask[l]) return WIN - ply; // 지금 잡을 수 있다
+      if (g.color === color && !myMask[l]) inAtari = true; // 손 안 쓰면 잡힌다
+    }
+    for (const l of g.libs) urgent.add(l);
+  }
+  // 단수가 아니면 "몰이 말고 딴 데 둔다"로 멈출 수 있다. 단수면 막아야만 한다
+  const stand = -evaluate(b, opp);
+  if (qd === 0) return stand;
+  let best = inAtari ? -(WIN - ply - 1) : stand;
+  if (best >= beta) return best;
+  if (best > alpha) alpha = best;
+  for (const i of urgent) {
+    const r = tryMove(b, i, color, oppMask);
+    if (r.err) continue;
+    if (r.capture) return WIN - ply;
+    const v = -quiet(r.board, opp, -beta, -alpha, ply + 1, qd - 1);
     if (v > best) best = v;
+    if (v > alpha) alpha = v;
+    if (alpha >= beta) break;
   }
   return best;
 }
 
-function finalWinner(b) {
-  const tb = territory(b, BLUE).count, to = territory(b, ORANGE).count;
-  return tb - to >= 3 ? BLUE : ORANGE;
+// color 차례인 판의 값 (color 기준). passes = 바로 앞이 패스였으면 1
+function search(b, color, depth, alpha, beta, ply, passes) {
+  if (performance.now() > deadline) throw TIMEOUT;
+  if (depth === 0) return quiet(b, color, alpha, beta, ply, 10);
+  const moves = orderedMoves(b, color, true);
+  if (!moves) return WIN - ply;
+  // 패스: 상대가 방금 패스했으면 여기서 끝나고 영토를 센다
+  let best = passes
+    ? (finalWinner(b) === color ? WIN - ply : -(WIN - ply))
+    : -search(b, 3 - color, depth - 1, -beta, -alpha, ply + 1, 1);
+  if (best > alpha) alpha = best;
+  if (alpha >= beta) return best;
+  const width = WIDTH[Math.min(ply, WIDTH.length - 1)];
+  for (let k = 0; k < moves.length && k < width; k++) {
+    const m = moves[k];
+    const v = -search(m.board, 3 - color, depth - 1, -beta, -alpha, ply + 1, 0);
+    if (v > best) best = v;
+    if (v > alpha) alpha = v;
+    if (alpha >= beta) break;
+  }
+  return best;
+}
+
+function thinkDeep(b, me, oppPassed, { ms, depth: maxDepth, width }) {
+  WIDTH = width;
+  deadline = performance.now() + ms;
+  orderCache = new Map();
+  const moves = orderedMoves(b, me);
+  // 같은 점수면 매번 다른 수가 나오게 살짝 섞는다
+  for (const m of moves) m.v += Math.random() * 0.05;
+  moves.sort((a, c) => c.v - a.v);
+  let pick = moves[0].i; // 1수 읽기도 못 끝내면 판 점수 1등
+  for (let depth = 1; depth <= maxDepth; depth++) {
+    try {
+      // 패스보다 0.2 이상 나아야 둔다
+      const passVal = oppPassed
+        ? (finalWinner(b) === me ? WIN : -WIN)
+        : -search(b, 3 - me, depth - 1, -Infinity, Infinity, 1, 1);
+      // 지는 판이면 패스로 포기하지 않고 가장 덜 나쁜 수를 둔다
+      let alpha = passVal < -WIN / 2 ? -Infinity : passVal + 0.2, best = -1;
+      for (const m of moves) {
+        const v = -search(m.board, 3 - me, depth - 1, -Infinity, -alpha, 1, 0);
+        m.score = v;
+        if (v > alpha || best < 0 && alpha === -Infinity) { alpha = v; best = m.i; }
+      }
+      pick = best;
+      if (Math.abs(alpha) > WIN / 2) break; // 이기고 지는 게 이미 보이면 더 읽을 필요 없음
+      // 다음 깊이는 이번에 좋았던 수부터 본다
+      moves.sort((a, c) => c.score - a.score);
+    } catch (e) {
+      if (e !== TIMEOUT) throw e;
+      break;
+    }
+  }
+  return pick;
 }
 
 function aiChoose(b, me, level, oppPassed) {
@@ -309,25 +419,16 @@ function aiChoose(b, me, level, oppPassed) {
   if (!moves.length) return -1;
   for (const m of moves) if (m.capture) return m.i;
   if (oppPassed && finalWinner(b) === me) return -1;
-  if (level === "easy" && Math.random() < 0.3) {
+  if (level !== "easy") return thinkDeep(b, me, oppPassed, THINK[level]);
+  if (Math.random() < 0.3) {
     const safe = moves.filter(m => evaluate(m.board, me) > -10000);
     const pool = safe.length ? safe : moves;
     return pool[(Math.random() * pool.length) | 0].i;
   }
-  const noise = level === "easy" ? 6 : level === "normal" ? 0.3 : 0.1;
-  const scored = moves.map(m => ({ m, v: evaluate(m.board, me) + Math.random() * noise }));
+  const scored = moves.map(m => ({ m, v: evaluate(m.board, me) + Math.random() * 6 }));
   scored.sort((a, c) => c.v - a.v);
-  let pick = scored[0], passVal = evaluate(b, me);
-  if (level === "hard") {
-    let bestV = -Infinity;
-    for (const s of scored.slice(0, 14)) {
-      const v = -bestReply(s.m.board, 3 - me) + Math.random() * 0.05;
-      if (v > bestV) { bestV = v; pick = { m: s.m, v }; }
-    }
-    passVal = -bestReply(b, 3 - me);
-  }
-  if (!oppPassed && pick.v <= passVal + 0.2) return -1;
-  return pick.m.i;
+  if (!oppPassed && scored[0].v <= evaluate(b, me) + 0.2) return -1;
+  return scored[0].m.i;
 }
 
 // ---------- 도트 그림 ----------
