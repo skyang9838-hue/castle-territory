@@ -33,7 +33,8 @@ body{margin:0;background:var(--night);color:var(--paper);font-family:var(--px);f
 .title canvas{width:44px;height:44px;flex:0 0 auto;image-rendering:pixelated}
 .title h1{font-family:"Galmuri14",var(--px);font-weight:700;font-size:24px;line-height:1;margin:0;white-space:nowrap;color:var(--gold);
   text-shadow:3px 3px 0 var(--ink),-1px -1px 0 var(--ink),1px -1px 0 var(--ink),-1px 1px 0 var(--ink)}
-.title p{margin:6px 0 0;font-size:12px;color:var(--dim)}
+.title p{margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--dim)}
+.title p span{display:block;white-space:nowrap}
 .box{background:var(--panel);border:3px solid var(--ink);box-shadow:inset 3px 3px 0 var(--panel-hi),inset -3px -3px 0 #1c1838,4px 4px 0 var(--ink);padding:12px}
 .status{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px;min-height:28px}
 .status i{width:16px;height:16px;border:3px solid var(--ink);flex:0 0 auto;display:block}
@@ -106,7 +107,7 @@ select:focus-visible,.btn:focus-visible,input:focus-visible{outline:3px solid va
   <aside class="side">
     <div class="title">
       <canvas id="logo" width="16" height="16"></canvas>
-      <div><h1>성 쌓기 땅따먹기</h1><p>그레이트 킹덤 규칙 연습용 · 내 성은 갇히지 않게</p></div>
+      <div><h1>성 쌓기 땅따먹기</h1><p><span>그레이트 킹덤 규칙 연습용</span><span>내 성은 갇히지 않게</span></p></div>
     </div>
 
     <div class="box">
